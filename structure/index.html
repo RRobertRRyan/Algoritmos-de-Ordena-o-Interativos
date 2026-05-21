@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordenação Interativos — The Sort Engine</title>
+  <link rel="stylesheet" href="/styles/theme.css">
+  <link rel="stylesheet" href="/styles/layout.css">
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Buscando dados do Banco Mundial…</div>
+</div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/120px-UN_emblem_blue.svg.png"
+         alt="ONU" class="nav-logo-img" onerror="this.style.display='none'">
+    <span class="nav-title">Ordenação <span>Interativos</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showMainView()">Visualizar</a></li>
+    <li><a href="#" onclick="runCompare()">Comparar</a></li>
+    <li><a href="#about">Aprender</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">Visualizador de Algoritmos</div>
+    <h1>The <em>Sort</em> Engine</h1>
+    <p>
+      Escolha uma API, selecione um campo numérico e assista a cada
+      <em style="color:var(--accent-gold)">comparação</em> e cada
+      <em style="color:var(--accent-red)">troca</em> ganharem vida.
+      Compare a teoria O(n²) vs O(n log n) com dados reais do
+      <strong style="color:var(--text-primary)">Banco Mundial</strong>.
+      Backend 100% em <strong style="color:var(--accent-green)">Python</strong>.
+    </p>
+  </div>
+  <div class="hero-onu">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/UN_emblem_blue.svg/200px-UN_emblem_blue.svg.png"
+         alt="ONU" onerror="this.style.display='none'">
+    <span class="hero-onu-label">Dados da ONU<br>Banco Mundial</span>
+  </div>
+</header>
+
+<!-- ── TABS ── -->
+<div class="tabs">
+  <div class="tab active" id="tab-main"    onclick="showMainView()">Visualizar</div>
+  <div class="tab"        id="tab-compare" onclick="runCompare()">Comparar Todos</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MAIN VIEW
+══════════════════════════════════════════════════ -->
+<div id="main-view" style="display:block">
+<div class="app-container">
+
+  <!-- ── PAINEL ESQUERDO ── -->
+  <section class="main-panel">
+
+    <div class="controls-bar">
+      <div class="control-group">
+        <label class="control-label">API / Fonte</label>
+        <select id="field-select">
+          <option value="gdp">Banco Mundial — PIB (US$ bilhões)</option>
+          <option value="lifeExp">Banco Mundial — Expectativa de Vida</option>
+          <option value="population">Banco Mundial — População (milhões)</option>
+          <option value="gdpPerCapita">Banco Mundial — PIB per Capita (US$)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Algoritmo</label>
+        <select id="alg-select">
+          <option value="bubble">Bubble Sort</option>
+          <option value="selection" selected>Selection Sort</option>
+          <option value="insertion">Insertion Sort</option>
+          <option value="merge">Merge Sort</option>
+          <option value="quick">Quick Sort</option>
+          <option value="heap">Heap Sort</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Tamanho da Amostra</label>
+        <select id="sample-select">
+          <option value="10">10 países</option>
+          <option value="16" selected>16 países</option>
+          <option value="25">25 países</option>
+          <option value="50">50 países</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Tamanho rápido</label>
+        <div class="sample-btns">
+          <button class="btn-sample" data-n="10">10</button>
+          <button class="btn-sample active" data-n="16">16</button>
+          <button class="btn-sample" data-n="25">25</button>
+          <button class="btn-sample" data-n="50">50</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="viz-card">
+      <div class="viz-header">
+        <div class="viz-title" id="viz-title">Selection <span>Sort</span></div>
+        <div class="viz-stats">
+          <div class="stat"><span class="stat-value" id="stat-comparisons">0</span><span class="stat-label">Comparações</span></div>
+          <div class="stat"><span class="stat-value" id="stat-swaps">0</span><span class="stat-label">Trocas</span></div>
+          <div class="stat"><span class="stat-value" id="stat-elapsed">0.00s</span><span class="stat-label">Tempo</span></div>
+          <div class="stat"><span class="stat-value" id="stat-steps">0/0</span><span class="stat-label">Passos</span></div>
+        </div>
+      </div>
+
+      <div id="bar-container"></div>
+
+      <div class="narration" id="narration">Pronto para iniciar. Pressione Play ▶</div>
+      <div class="sorted-banner" id="sorted-banner">✓ Ordenação completa! Todos os elementos estão em ordem crescente.</div>
+
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:var(--bar-compare)"></span>Comparando</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--bar-swap)"></span>Trocando</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--bar-sorted)"></span>Ordenado</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--bar-pivot)"></span>Pivô</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--bar-heap)"></span>Heap</span>
+      </div>
+
+      <div class="playback">
+        <button class="btn btn-primary"   id="btn-play">▶ Play</button>
+        <button class="btn btn-secondary" id="btn-pause" disabled>⏸ Pause</button>
+        <button class="btn btn-secondary" id="btn-step">⇥ Step</button>
+        <button class="btn btn-danger"    id="btn-reset">↺ Reset</button>
+        <div class="speed-group">
+          <span class="speed-label">Velocidade</span>
+          <input type="range" id="speed-slider" min="20" max="1000" value="110" step="10">
+          <span class="speed-value" id="speed-val">110ms</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <div class="data-table-title">
+        <span>Países no dataset</span>
+        <span style="color:var(--accent-blue);font-family:var(--font-mono);font-size:0.65rem">dados via Python + Banco Mundial</span>
+      </div>
+      <div class="countries-grid" id="countries-list"></div>
+    </div>
+
+  </section>
+
+  <!-- ── PAINEL LATERAL ── -->
+  <aside class="side-panel">
+    <div>
+      <div class="side-section-title">Pseudo<span>código</span></div>
+      <div class="pseudo-block" id="pseudo-block"></div>
+    </div>
+
+    <div class="how-it-works">
+      <div class="how-title">Como funciona</div>
+      <div class="how-text" id="how-text"></div>
+      <div style="margin-top:0.75rem">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem">Estrutura de Dados</div>
+        <div class="ds-badge" id="ds-info">Array (in-place)</div>
+      </div>
+    </div>
+
+    <div id="heap-tree-wrap" class="heap-tree-wrap" style="display:none">
+      <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem">Heap Binário (árvore)</div>
+      <svg id="heap-svg" viewBox="0 0 300 110"></svg>
+    </div>
+
+    <div>
+      <div class="side-section-title">Complexidade</div>
+      <div class="complexity-grid">
+        <div class="complexity-box"><div class="complexity-case">Melhor</div><div class="complexity-val text-accent" id="cx-best"></div><div class="complexity-why" id="cx-best-why"></div></div>
+        <div class="complexity-box"><div class="complexity-case">Médio</div><div class="complexity-val text-gold"   id="cx-avg"></div><div class="complexity-why"  id="cx-avg-why"></div></div>
+        <div class="complexity-box"><div class="complexity-case">Pior</div><div class="complexity-val" style="color:var(--accent-red)"   id="cx-worst"></div><div class="complexity-why" id="cx-worst-why"></div></div>
+        <div class="complexity-box"><div class="complexity-case">Espaço</div><div class="complexity-val" style="color:var(--accent-green)" id="cx-space"></div><div class="complexity-why" id="cx-space-why"></div></div>
+      </div>
+    </div>
+
+    <div class="compare-btn-wrap">
+      <button class="btn-compare-all" id="btn-compare-all">↔ Comparar Todos</button>
+      <div class="compare-hint">Rode os 6 algoritmos sobre o mesmo dataset</div>
+    </div>
+  </aside>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     COMPARE VIEW
+══════════════════════════════════════════════════ -->
+<div id="compare-view" class="compare-view">
+  <div class="compare-header">
+    <div class="compare-title">Comparar <span>Algoritmos</span></div>
+    <button class="btn btn-secondary" onclick="showMainView()">← Voltar</button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">Tamanho da Amostra:</span>
+    <div class="sample-btns">
+      <button class="btn-sample" data-n="10"  onclick="runCompare(10)">10</button>
+      <button class="btn-sample active" data-n="16" onclick="runCompare(16)">16</button>
+      <button class="btn-sample" data-n="25"  onclick="runCompare(25)">25</button>
+      <button class="btn-sample" data-n="50"  onclick="runCompare(50)">50</button>
+    </div>
+    <span id="compare-loading" style="display:none;font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-blue)">⏳ Executando no Python…</span>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="compare-table">
+      <thead><tr>
+        <th>Algoritmo</th><th>Comparações</th><th>Trocas / Mov.</th>
+        <th>Tempo (ms)</th><th>Melhor caso</th><th>Caso médio</th><th>Pior caso</th>
+      </tr></thead>
+      <tbody id="compare-tbody">
+        <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Executando algoritmos…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="compare-bar-chart">
+    <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem">Gráfico Comparativo</div>
+    <div id="compare-chart"></div>
+  </div>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem">
+    <div style="font-size:0.78rem;font-weight:600;color:var(--accent-gold);margin-bottom:0.5rem">Interpretando os resultados</div>
+    <div style="font-size:0.78rem;color:var(--text-secondary);line-height:1.7">
+      <strong style="color:var(--text-primary)">Comparações</strong> medem o trabalho de decisão do algoritmo.
+      <strong style="color:var(--text-primary)">Trocas/Movimentos</strong> medem a reorganização.
+      Merge Sort e Quick Sort têm O(n log n) — crescem muito mais lentamente.
+      Teste com 50 elementos para ver a diferença claramente.
+      <br><em style="color:var(--accent-green)">Todos os algoritmos são calculados pelo backend Python.</em>
+    </div>
+  </div>
+</div>
+
+<!-- ── ABOUT ── -->
+<section id="about" style="padding:2rem;border-top:1px solid var(--border);background:var(--bg-secondary)">
+  <div style="max-width:800px;margin:0 auto">
+    <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem">+ Aprender</div>
+    <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:700;margin-bottom:1rem">Por que algoritmos de ordenação importam?</h2>
+    <div class="about-grid">
+      <div class="about-card"><div class="about-icon">⚡</div><div class="about-card-title">Performance Real</div><div class="about-card-text">A diferença entre O(n²) e O(n log n) é enorme. Para 1 milhão de elementos, Bubble Sort faz 10¹² operações enquanto Merge Sort faz apenas ~20 milhões.</div></div>
+      <div class="about-card"><div class="about-icon">🐍</div><div class="about-card-title">Backend Python</div><div class="about-card-text">Todos os 6 algoritmos são implementados em Python puro com geradores (yield). O Flask calcula os passos e envia ao frontend via API REST.</div></div>
+      <div class="about-card"><div class="about-icon">🌍</div><div class="about-card-title">Dados do Mundo Real</div><div class="about-card-text">Dados reais do Banco Mundial (ONU) — PIB, expectativa de vida, população e PIB per capita — tornam a aprendizagem concreta e significativa.</div></div>
+    </div>
+  </div>
+</section>
+
+<script src="/features/main.js"></script>
+</body>
+</html>

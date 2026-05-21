@@ -1,0 +1,68 @@
+/* =====================================================
+   theme.css — Tokens de design: cores, tipografia, variáveis
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  /* Paleta principal */
+  --bg-primary:    #060810;
+  --bg-secondary:  #0d1117;
+  --bg-card:       #111827;
+  --bg-card-hover: #1a2234;
+
+  /* Acentos */
+  --accent-blue:  #3b82f6;
+  --accent-gold:  #f59e0b;
+  --accent-cyan:  #06b6d4;
+  --accent-green: #10b981;
+  --accent-red:   #ef4444;
+
+  /* Barras */
+  --bar-default: #1e3a5f;
+  --bar-compare: #f59e0b;
+  --bar-swap:    #ef4444;
+  --bar-sorted:  #10b981;
+  --bar-pivot:   #8b5cf6;
+  --bar-heap:    #06b6d4;
+
+  /* Texto */
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #475569;
+
+  /* Bordas */
+  --border:        rgba(59,130,246,0.15);
+  --border-bright: rgba(59,130,246,0.4);
+
+  /* Tipografia */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* Forma */
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 3px; }
+
+.text-accent { color: var(--accent-blue); }
+.text-gold   { color: var(--accent-gold); }
+.text-muted  { color: var(--text-muted); }
+.font-mono   { font-family: var(--font-mono); }
